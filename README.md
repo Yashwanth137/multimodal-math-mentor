@@ -2,7 +2,7 @@
 
 A production-style AI application that solves JEE-level math problems using a multimodal RAG + Multi-Agent architecture.
 
-## 🚀 Features
+## Features
 
 - **Multimodal Input**: Accept problems via **Image (OCR)**, **Audio (ASR)**, or Direct Text.
 - **LangGraph Orchestration**: Robust multi-agent workflow (Parser, Router, Solver, Verifier, Explainer).
@@ -11,7 +11,7 @@ A production-style AI application that solves JEE-level math problems using a mu
 - **Memory Layer**: Learns from corrections and stores past problems in SQLite.
 - **Human-in-the-Loop (HITL)**: Triggers manual review for low-confidence extractions or ambiguous parsing.
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -44,7 +44,7 @@ graph TD
     end
 ```
 
-## 🛠️ Setup Instructions
+## Setup Instructions
 
 ### 1. Prerequisites
 - Python 3.9+
@@ -76,7 +76,7 @@ python -m app.rag.ingest
 streamlit run ui/streamlit_app.py
 ```
 
-## 📂 Project Structure
+## Project Structure
 ```text
 math-mentor-ai/
 ├── app/
@@ -99,5 +99,5 @@ math-mentor-ai/
 └── README.md
 ```
 
-## 📜 Deployment
+## Deployment
 To deploy on Streamlit Cloud, simply connect your GitHub repo. The `packages.txt` file will automatically install the necessary system dependencies (`tesseract-ocr`, `ffmpeg`).

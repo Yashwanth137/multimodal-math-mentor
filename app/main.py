@@ -33,11 +33,12 @@ def process_math_input(input_data: str, mode: str = "text", ui_status=None):
     logger.info(f"Processing input in mode: {mode}")
     if mode == "image":
         image_path = input_data
-        extraction_result = {
-            "text": "[Image input provided. Analyze the visual for mathematical content.]",
-            "confidence": 1.0,
-            "status": "success"
-        }
+        extraction_result = run_ocr(image_path)
+
+        if not extraction_result["text"].strip():
+            extraction_result["text"] = "[Image attached. Please read the visual directly.]"
+            extraction_result["confidence"] = 1.0
+
     elif mode == "audio":
         extraction_result = run_asr(input_data)
 
@@ -66,10 +67,10 @@ def process_math_input(input_data: str, mode: str = "text", ui_status=None):
             "final_explanation": {},
             "status": "started"
         }
-        final_state = initial_state
+        final_state = initial_state.copy()
         for event in app.stream(initial_state):
             for node_name, state in event.items():
-                final_state = state
+                final_state.update(state)
                 if node_name == "triage": ui_status.write("✅ Triaged problem and extracted intent...")
                 elif node_name == "retriever": ui_status.write("📚 Retrieved context from Knowledge Base...")
                 elif node_name == "solver": ui_status.write("⚙️ Solver Agent derived step-by-step logic...")
@@ -145,7 +146,11 @@ def get_session_history():
 
 def get_past_solution(problem_id: str):
     record = MemoryStore().get_full_solution(problem_id)
-    if not record: return None
+    if not record:
+        return {
+            "status": "error", 
+            "error_message": "Memory record not found or was deleted."
+        }
     return {
         "problem_id": problem_id,
         "explanation": {

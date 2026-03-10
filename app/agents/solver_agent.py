@@ -39,13 +39,20 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
     
     system_msg = (
         "You are the JEE Math Professor. Your objective is elite mathematical reasoning.\n"
-        "1. USE SYMPY TOOLS for any complex calculations, derivatives, or integrals.\n"
-        "2. PROVIDE STEP-BY-STEP PROOFS.\n"
-        "3. OUTPUT MUST BE VALID JSON.\n\n"
+        "1. If an image is attached, YOU MUST READ AND ANALYZE THE IMAGE to find the math problem.\n"
+        "2. USE SYMPY TOOLS for any complex calculations, derivatives, or integrals.\n"
+        "3. PROVIDE STEP-BY-STEP PROOFS.\n"
+        "4. OUTPUT MUST BE VALID JSON.\n\n"
         f"{parser.get_format_instructions()}"
     )
     
-    content = [{"type": "text", "text": f"Problem: {problem_text}\nContext: {str(context)}"}]
+    content = [
+        {
+            "type": "text", 
+            "text": f"CRITICAL INSTRUCTION: An image of a math problem is attached. You must read it and solve it. \n\nOCR/Text Hint: {problem_text}\nContext: {str(context)}"
+        }
+    ]    
+    
     logger.info(f"Targeting Image Path: {image_path}")
     if image_path and os.path.exists(image_path):
         try:
@@ -124,6 +131,39 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
             iterations += 1
             
         return resp, tools_executed
+
+    # =================================================================
+    # THIS IS THE MISSING BLOCK! It actually runs the code above!
+    # =================================================================
+    try:
+        response, final_tools = _execute_with_instant_fallback(messages)
+        
+        # THE FIX: Safely extract text whether response.content is a string or a list
+        raw_text = response.content
+        if isinstance(raw_text, list):
+            # Extract text from LangChain's list of content blocks
+            text_parts = []
+            for block in raw_text:
+                if isinstance(block, dict) and "text" in block:
+                    text_parts.append(block["text"])
+                elif isinstance(block, str):
+                    text_parts.append(block)
+            raw_text = "".join(text_parts)
+            
+        if not raw_text:
+            raw_text = "{}"  # Fallback if empty
+            
+        # Programmatically fix backslashes so JSON doesn't crash
+        safe_text = str(raw_text).replace("\\", "\\\\")
+        parsed = parser.parse(safe_text)
+        
+        parsed["tools_used_detail"] = final_tools
+        parsed["status"] = "solved"
+        parsed["raw_proof"] = str(raw_text)
+        return parsed
+    except Exception as e:
+        logger.error(f"Solver Error: {e}")
+        return {"status": "error", "error_message": f"Solver failed: {str(e)}"}
 
 if __name__ == "__main__":
     print("Solver Agent with Tool Calling and Instant Fallback initialized.")

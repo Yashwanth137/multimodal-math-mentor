@@ -1,6 +1,6 @@
 import sympy as sp
 import numpy as np
-from typing import Union, List, Any
+from typing import Union, List, Optional
 import json
 
 def sympy_solver(expression: str) -> str:
@@ -26,13 +26,17 @@ def derivative_solver(expression: str, variable: str = 'x') -> str:
     except Exception as e:
         return f"Error: {str(e)}"
 
-def integral_solver(expression: str, variable: str = 'x', lower: Any = None, upper: Any = None) -> str:
+# THE FIX: Changed 'Any' to 'Optional[str]' so Pydantic can parse it into a JSON Schema for Gemini
+def integral_solver(expression: str, variable: str = 'x', lower: Optional[str] = None, upper: Optional[str] = None) -> str:
     """Computes indefinite or definite integrals."""
     try:
         var = sp.Symbol(variable)
         expr = sp.sympify(expression)
         if lower is not None and upper is not None:
-            result = sp.integrate(expr, (var, lower, upper))
+            # THE FIX: Convert string bounds back to symbolic/numeric for SymPy
+            lower_bound = sp.sympify(lower) if isinstance(lower, str) else lower
+            upper_bound = sp.sympify(upper) if isinstance(upper, str) else upper
+            result = sp.integrate(expr, (var, lower_bound, upper_bound))
         else:
             result = sp.integrate(expr, var)
         return str(result)
