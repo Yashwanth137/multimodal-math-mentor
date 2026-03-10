@@ -2,6 +2,5 @@ tesseract-ocr
 libtesseract-dev
 ffmpeg
 libgl1
-libmagic1
 python3-dev
 build-essential

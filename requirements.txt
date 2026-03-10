@@ -24,7 +24,6 @@ pydantic
 requests
 unstructured
 unstructured-client
-python-magic
 markdown
 langchain-openai
 langchain-huggingface
