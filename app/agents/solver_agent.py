@@ -104,14 +104,20 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
             temperature=0.0,
             max_retries=1
         ).bind_tools(tools_list)
-        robust_solver = primary_llm.with_fallbacks([fallback_llm])
-        tools_executed = []
         
-        # Prevent state mutation loop bugs by copying original messages
+        tools_executed = []
         working_msgs = msg_list.copy()
         
-        # 4. Invoke!
-        resp = robust_solver.invoke(working_msgs)
+        # --- THE BULLETPROOF FALLBACK FIX ---
+        def invoke_with_fallback(messages):
+            try:
+                return primary_llm.invoke(messages)
+            except Exception as e:
+                logger.warning(f"Pro hit limit or failed, instantly falling back to Flash: {e}")
+                return fallback_llm.invoke(messages)
+        
+        # 4. First Invoke!
+        resp = invoke_with_fallback(working_msgs)
         
         # 5. Use a WHILE loop to handle multiple tool calls gracefully with a hard cap
         iterations = 0
@@ -127,7 +133,7 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
                     working_msgs.append(ToolMessage(content=str(res), tool_call_id=tc["id"]))
             
             # Gemini reads the tool results and continues thinking
-            resp = robust_solver.invoke(working_msgs)
+            resp = invoke_with_fallback(working_msgs)
             iterations += 1
             
         return resp, tools_executed

@@ -145,7 +145,7 @@ cython_debug/
 temp_img.*
 temp_audio.*
 # Vector databases / FAISS dumps
-data/
+# (Keep faiss_index ignored, but allow data/knowledge_base/ sources)
 app/rag/faiss_index/
 chroma_db/
 # App generated sqlite db for memory store
