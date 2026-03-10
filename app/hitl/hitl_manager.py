@@ -6,7 +6,7 @@ class HITLManager:
     """
     Manages coordination between automated extraction and human review.
     """
-    def __init__(self, ocr_threshold: float = 0.5, asr_threshold: float = 0.8):
+    def __init__(self, ocr_threshold: float = 0.95, asr_threshold: float = 0.8):
         self.ocr_threshold = ocr_threshold
         self.asr_threshold = asr_threshold
 

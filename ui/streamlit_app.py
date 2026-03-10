@@ -260,6 +260,7 @@ with main_col:
             ans = exp.get("final_boxed_answer", "N/A")
             # Clean LaTeX boxing for st.latex
             if isinstance(ans, str):
+                ans = ans.strip().strip('$')
                 if ans.startswith("\\boxed{") and ans.endswith("}"): ans = ans[7:-1]
                 # Prevent text smushing in latex rendering
                 if "\\" not in ans and "^" not in ans and len(ans.split()) > 3:

@@ -41,23 +41,24 @@ class MathRetriever:
         
         # 1. Search Knowledge Base (Highest priority for formulas)
         if self.vector_store:
-            # Use score-based search (Lower score = closer distance in FAISS)
             docs_and_scores = self.vector_store.similarity_search_with_score(query, k=k)
             for doc, score in docs_and_scores:
-                # Only keep highly relevant formulas! (Discard bad matches)
                 if score < 1.2: 
                     combined_results.append({
                         "content": f"Knowledge Base: {doc.page_content}",
                         "score": score
                     })
         
-        # 2. Search Memory Store (Previous Solved Problems)
-        memory_results = self.memory_store.semantic_search(query, k=2)
-        for res in memory_results:
-            combined_results.append({
-                "content": f"Previously Solved:\nProblem: {res['text']}\nSolution: {res['solution']}",
-                "score": 0.7 
-            })
+        # 2. THE FIX: Search Memory Store with a strict score threshold!
+        if self.memory_store and self.memory_store.vector_store:
+            mem_docs_scores = self.memory_store.vector_store.similarity_search_with_score(query, k=1)
+            for doc, score in mem_docs_scores:
+                # Only include past problems if they are highly relevant
+                if score < 1.2:
+                    combined_results.append({
+                        "content": f"Previously Solved:\nProblem: {doc.page_content}\nSolution: {doc.metadata.get('solution')}",
+                        "score": score 
+                    })
             
         return [res["content"] for res in combined_results[:k]]
 
