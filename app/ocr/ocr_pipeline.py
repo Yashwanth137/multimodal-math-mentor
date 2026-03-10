@@ -31,8 +31,6 @@ def run_ocr(image_path: str) -> dict:
         avg_confidence = sum(confidences) / len(confidences) if confidences else 0
         
         confidence_norm = avg_confidence / 100.0
-        logger.info(f"OCR Text: '{text.strip()[:50]}...'")
-        logger.info(f"OCR Confidence: {confidence_norm}")
         
         return {
             "text": text.strip(),
@@ -40,7 +38,7 @@ def run_ocr(image_path: str) -> dict:
             "status": "success"
         }
     except Exception as e:
-        logger.error(f"OCR Error: {e}")
+        logger.error("OCR Error occurred.")
         return {
             "text": "",
             "confidence": 0,

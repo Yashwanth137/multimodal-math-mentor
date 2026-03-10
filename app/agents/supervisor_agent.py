@@ -56,7 +56,7 @@ def run_triage(input_text: str) -> dict:
             raise ValueError("Triage model returned an empty or None result.")
         return result
     except Exception as e:
-        logger.error(f"Supervisor Triage Error: {e}")
+        logger.error("Supervisor Triage Error occurred.")
         return {
             "problem_text": input_text,
             "is_complex": True, 
@@ -96,7 +96,7 @@ def run_formatter(problem_text: str, solution_data: dict, context: List[str]) ->
         })
         return result
     except Exception as e:
-        logger.error(f"Supervisor Formatter Error: {e}")
+        logger.error("Supervisor Formatter Error occurred.")
         return {
             "step_by_step": ["Calculation complete. See final result."],
             "reasoning": "The solution was processed successfully.",

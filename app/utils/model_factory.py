@@ -68,7 +68,7 @@ def get_solver_model(model_name: str = None) -> BaseChatModel:
             )
         except Exception as e:
             last_err = e
-            logger.warning(f"Failed to initialize model {m}: {e}. Trying fallback if available.")
+            logger.warning(f"Failed to initialize model {m}. Trying fallback if available.")
             continue
             
     raise RuntimeError(f"All solver models failed to initialize. Last error: {last_err}")
@@ -84,4 +84,4 @@ if __name__ == "__main__":
         sol = get_solver_model()
         print("Aethyln Labs Dual-Node Model Factory initialized.")
     except Exception as e:
-        print(f"Error: {e}")
+        print("Error initializing Aethyln Labs Dual-Node Model Factory.")

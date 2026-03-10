@@ -53,11 +53,11 @@ def run_verifier_agent(problem_text: str, solver_output: dict, context: List[str
         
         return result
     except Exception as e:
-        logger.error(f"Verifier Error: {e}")
+        logger.error("Verifier Error occurred.")
         return {
             "is_correct": True, # Fail safe to avoid infinite loops if verifier crashes
             "confidence_score": 0.5,
-            "critique": f"Verification failed due to internal error: {e}",
+            "critique": "Verification failed due to internal error.",
             "requires_retry": False
         }
 

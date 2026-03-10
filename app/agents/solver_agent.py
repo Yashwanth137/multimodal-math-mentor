@@ -51,9 +51,9 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
             "type": "text", 
             "text": f"CRITICAL INSTRUCTION: Read the attached image carefully. The OCR hint might be wrong (e.g., missing fractional exponents). \n\nOCR Hint: {problem_text}\nContext: {str(context)}"
         }
-    ] 
+    ]
     
-    logger.info(f"Targeting Image Path: {image_path}")
+    logger.info("Processing target image for Solver.")
     if image_path and os.path.exists(image_path):
         try:
             img_base64 = encode_image(image_path)
@@ -71,11 +71,11 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
                 "type": "image_url", 
                 "image_url": {"url": f"data:{mime_type};base64,{img_base64}"}
             })
-            logger.info(f"Successfully attached image ({mime_type}) of size {len(img_base64)} bytes.")
+            logger.info("Successfully attached image payload.")
         except Exception as img_err:
-            logger.error(f"Failed to encode image: {img_err}")
+            logger.error("Failed to encode image safely.")
     else:
-        logger.warning(f"Image NOT ATTACHED. Path: {image_path}")
+        logger.warning("Image NOT ATTACHED to Solver call.")
         
     messages = [("system", system_msg), HumanMessage(content=content)]
 
@@ -113,7 +113,7 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
             try:
                 return primary_llm.invoke(messages)
             except Exception as e:
-                logger.warning(f"Pro hit limit or failed, instantly falling back to Flash: {e}")
+                logger.warning("Pro hit limit or failed, instantly falling back to Flash.")
                 return fallback_llm.invoke(messages)
         
         # 4. First Invoke!
@@ -168,7 +168,7 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
         parsed["raw_proof"] = str(raw_text)
         return parsed
     except Exception as e:
-        logger.error(f"Solver Error: {e}")
+        logger.error("Solver Error occurred.")
         return {"status": "error", "error_message": f"Solver failed: {str(e)}"}
 
 if __name__ == "__main__":
