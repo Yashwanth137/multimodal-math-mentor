@@ -39,7 +39,7 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
     
     system_msg = (
         "You are the JEE Math Professor. Your objective is elite mathematical reasoning.\n"
-        "1. If an image is attached, YOU MUST READ AND ANALYZE THE IMAGE to find the math problem.\n"
+        "1. IF AN IMAGE IS ATTACHED, YOU MUST READ THE IMAGE TO FIND THE MATH PROBLEM. DO NOT BLINDLY TRUST THE OCR TEXT.\n"
         "2. USE SYMPY TOOLS for any complex calculations, derivatives, or integrals.\n"
         "3. PROVIDE STEP-BY-STEP PROOFS.\n"
         "4. OUTPUT MUST BE VALID JSON.\n\n"
@@ -49,9 +49,9 @@ def run_solver_agent(problem_text: str, context: list, image_path: str = None) -
     content = [
         {
             "type": "text", 
-            "text": f"CRITICAL INSTRUCTION: An image of a math problem is attached. You must read it and solve it. \n\nOCR/Text Hint: {problem_text}\nContext: {str(context)}"
+            "text": f"CRITICAL INSTRUCTION: Read the attached image carefully. The OCR hint might be wrong (e.g., missing fractional exponents). \n\nOCR Hint: {problem_text}\nContext: {str(context)}"
         }
-    ]    
+    ] 
     
     logger.info(f"Targeting Image Path: {image_path}")
     if image_path and os.path.exists(image_path):

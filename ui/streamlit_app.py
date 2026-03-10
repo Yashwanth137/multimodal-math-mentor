@@ -251,12 +251,9 @@ with main_col:
             steps = [step for step in exp.get("step_by_step", []) if step.strip()]
             for step in steps:
                 step = clean_latex_for_streamlit(step)
-                if "$" in step or "\\" in step:
-                    st.markdown(f"<div class='step-box'>", unsafe_allow_html=True)
-                    st.write(step) # Markdown will handle mixed LaTeX better than latex() for long sentences
-                    st.markdown("</div>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<div class='step-box'>{step}</div>", unsafe_allow_html=True)
+                # THE FIX: Use native Streamlit containers to keep LaTeX rendering intact!
+                with st.container(border=True):
+                    st.markdown(step)
             
             # Final Answer
             st.markdown("<div class='final-answer'><strong>Final Answer</strong>", unsafe_allow_html=True)

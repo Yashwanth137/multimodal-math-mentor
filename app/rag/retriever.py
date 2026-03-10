@@ -35,28 +35,30 @@ class MathRetriever:
 
     def retrieve(self, query: str, k: int = 3) -> list:
         """
-        Retrieves the top k most relevant chunks across all sources.
+        Retrieves the top k most relevant chunks across all sources using distance scoring.
         """
         combined_results = []
         
         # 1. Search Knowledge Base (Highest priority for formulas)
         if self.vector_store:
-            docs = self.vector_store.similarity_search(query, k=k)
-            for doc in docs:
-                combined_results.append({
-                    "content": f"Knowledge Base: {doc.page_content}",
-                    "score": 0.9 # Default priority
-                })
+            # Use score-based search (Lower score = closer distance in FAISS)
+            docs_and_scores = self.vector_store.similarity_search_with_score(query, k=k)
+            for doc, score in docs_and_scores:
+                # Only keep highly relevant formulas! (Discard bad matches)
+                if score < 1.2: 
+                    combined_results.append({
+                        "content": f"Knowledge Base: {doc.page_content}",
+                        "score": score
+                    })
         
         # 2. Search Memory Store (Previous Solved Problems)
         memory_results = self.memory_store.semantic_search(query, k=2)
         for res in memory_results:
             combined_results.append({
-                "content": f"Previously Solved (Memory ID {res['problem_id']}):\nProblem: {res['text']}\nSolution: {res['solution']}",
-                "score": 0.7 # Lower priority for past cases unless highly relevant
+                "content": f"Previously Solved:\nProblem: {res['text']}\nSolution: {res['solution']}",
+                "score": 0.7 
             })
             
-        # Sort and limit to top 3 total chunks
         return [res["content"] for res in combined_results[:k]]
 
 if __name__ == "__main__":
